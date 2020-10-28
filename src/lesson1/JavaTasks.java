@@ -2,6 +2,10 @@ package lesson1;
 
 import kotlin.NotImplementedError;
 
+import java.io.*;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
 @SuppressWarnings("unused")
 public class JavaTasks {
     /**
@@ -34,10 +38,35 @@ public class JavaTasks {
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
-    static public void sortTimes(String inputName, String outputName) {
-        throw new NotImplementedError();
-    }
+    static public void sortTimes(String inputName, String outputName) throws IOException {
+        List<Integer> list = new ArrayList<>();
+        DateTimeFormatter citizen = DateTimeFormatter.ofPattern("hh:mm:ss a");
+        DateTimeFormatter military = DateTimeFormatter.ISO_LOCAL_TIME;
 
+        try (BufferedReader input = new BufferedReader(new FileReader(new File(inputName)));
+             BufferedWriter output = new BufferedWriter(new FileWriter(new File(outputName)))) {
+            while (input.ready()) {
+                String s = input.readLine();
+                String t = military.format(citizen.parse(s));
+                String[] hms = t.split(":");
+                int secs = Integer.parseInt(hms[0]) * 3600 + Integer.parseInt(hms[1]) * 60 + Integer.parseInt(hms[2]);
+                list.add(secs);
+            }
+            Collections.sort(list);
+            for (int i = 0; i < list.size(); i++) {
+                int time = list.get(i);
+                int h = time / 3600;
+                int m = (time - h * 3600) / 60;
+                int s = time - h * 3600 - m * 60;
+                String notAns = String.format("%02d:%02d:%02d", h, m, s);
+                String ans = citizen.format(military.parse(notAns));
+                output.write(ans);
+                if (i != list.size() - 1) {
+                    output.newLine();
+                }
+            }
+        }
+    } //трудоёмкость O(N * logN) ресурсоёмкость O(N)
     /**
      * Сортировка адресов
      *
@@ -98,9 +127,37 @@ public class JavaTasks {
      * 99.5
      * 121.3
      */
-    static public void sortTemperatures(String inputName, String outputName) {
-        throw new NotImplementedError();
+
+
+    static public void sortTemperatures(String inputName, String outputName) throws IOException {
+        int[] array = new int[(273 + 500 + 1) * 10 + 1];
+        int delta = 2730;
+        int count = 0;
+        File inputFile = new File(inputName);
+        File outputFile = new File(outputName);
+
+        try (BufferedReader input = new BufferedReader(new FileReader(inputFile));
+             BufferedWriter output = new BufferedWriter(new FileWriter(outputFile))) {
+            while (input.ready()) {
+                count++;
+                String s = input.readLine();
+                int t = (int) Math.floor((Float.parseFloat(s) * 10));
+                array[t + delta]++;
+
+            }
+            int cur = 0;
+            for (int i = 0; i < array.length; i++) {
+                int t = array[i];
+                if (t == 0) continue;
+                for (int j = 0; j < t; j++) {
+                    output.write((i - delta) / 10.0 + "\n");
+                    cur++;
+                }
+            }
+        }
     }
+    // Трудоёмкость O(кол-во элементов в массиве + кол-во повторений элемента в массиве)
+    // Ресурсоёмкость O(N)
 
     /**
      * Сортировка последовательности
@@ -131,9 +188,38 @@ public class JavaTasks {
      * 2
      * 2
      */
-    static public void sortSequence(String inputName, String outputName) {
-        throw new NotImplementedError();
-    }
+    static public void sortSequence(String inputName, String outputName) throws IOException {
+        int num = 0; //min number
+        int reps = 0; //max reps
+        List<Integer> list = new ArrayList<>(); //initial list
+        Map<Integer, Integer> map = new HashMap<>();
+
+        try (BufferedReader input = new BufferedReader(new FileReader(new File(inputName)));
+             BufferedWriter output = new BufferedWriter(new FileWriter(new File(outputName)))) {
+            while (input.ready()) {
+                Integer cur = Integer.parseInt(input.readLine());
+                list.add(cur);
+                map.put(cur, map.getOrDefault(cur, 0) + 1);
+            }
+            for (Map.Entry<Integer, Integer> i : map.entrySet()) {
+                if (i.getValue() > reps) {
+                    num = i.getKey();
+                    reps = i.getValue();
+                }
+                if (i.getValue() == reps && i.getKey() < num) {
+                    num = i.getKey();
+                }
+            }
+            for (int i : list) {
+                if (i != num) {
+                    output.write(i + "\n");
+                }
+            }
+            for (int i = 0; i < reps; i++) {
+                output.write(num + "\n");
+            }
+        }
+    } //трудоёмкость O(N*logN) ресурсоёмкость O(N)
 
     /**
      * Соединить два отсортированных массива в один

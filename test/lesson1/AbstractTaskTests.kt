@@ -45,6 +45,21 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         } finally {
             File("temp.txt").delete()
         }
+        try { //testtesttest
+            sortTimes("input/time_in4.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                    11:00:56 AM
+                    10:12:13 PM
+                    10:12:13 PM
+                    10:12:13 PM
+                    10:10:10 AM
+                """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete();
+        }
     }
 
     protected fun sortAddresses(sortAddresses: (String, String) -> Unit) {
@@ -113,6 +128,23 @@ abstract class AbstractTaskTests : AbstractFileTests() {
                     24.7
                     99.5
                     121.3
+                """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+        try { //testtesttest
+            sortTemperatures("input/temp_in2.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                    -100.2
+                    -0.1
+                    0.0
+                    0.0
+                    0.4
+                    10.0
+                    24.2
                 """.trimIndent()
             )
         } finally {
@@ -272,6 +304,20 @@ abstract class AbstractTaskTests : AbstractFileTests() {
                         41
                         32
                         32
+                    """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+        try {//testtesttest
+            sortSequence("input/seq_in6.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                    1
+                    4
+                    8
+                    8
                     """.trimIndent()
             )
         } finally {

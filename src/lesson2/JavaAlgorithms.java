@@ -3,6 +3,13 @@ package lesson2;
 import kotlin.NotImplementedError;
 import kotlin.Pair;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+
 @SuppressWarnings("unused")
 public class JavaAlgorithms {
     /**
@@ -22,16 +29,50 @@ public class JavaAlgorithms {
      * 185
      *
      * Выбрать два момента времени, первый из них для покупки акций, а второй для продажи, с тем, чтобы разница
-     * между ценой продажи и ценой покупки была максимально большой. Второй момент должен быть раньше первого.
+     * между ценой продажи и ценой покупки была максимально большой. Второй момент должен быть раньше первого. //второй должен быть позже* первого
      * Вернуть пару из двух моментов.
      * Каждый момент обозначается целым числом -- номер строки во входном файле, нумерация с единицы.
      * Например, для приведённого выше файла результат должен быть Pair(3, 4)
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
-    static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) {
-        throw new NotImplementedError();
-    }
+    static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) throws IOException {
+        BufferedReader input = new BufferedReader(
+                new InputStreamReader(new FileInputStream(inputName), StandardCharsets.UTF_8)
+        );
+        String s = input.readLine();
+        ArrayList<Integer> list = new ArrayList<>();
+        while (s != null) {
+            Integer value = Integer.valueOf(s);
+            if (value < 0) throw new IllegalArgumentException();
+            list.add(value);
+            s = input.readLine();
+        }
+        if (list.isEmpty()) throw new IllegalArgumentException();
+
+        int[] dif = new int[list.size() - 1];
+        for (int i = 0; i < list.size() - 1; i++) dif[i] = list.get(i + 1) - list.get(i);
+
+        int max = 0;
+        int sum = 0;
+        int buyPos = 0;
+        int maxBuyPos = 0;
+        int sellPos = 1;
+        for (int i = 0; i < dif.length; i++) {
+            sum += dif[i];
+            if (sum > max) {
+                max = sum;
+                maxBuyPos = buyPos + 1;
+                sellPos = i + 2;
+            }
+            if (sum < 0) {
+                sum = 0;
+                buyPos = i + 1;
+            }
+        }
+
+        return new Pair<>(maxBuyPos, sellPos);
+    } //ресурсоемкость O(n); трудоемкость O(n)
 
     /**
      * Задача Иосифа Флафия.
@@ -97,9 +138,26 @@ public class JavaAlgorithms {
      * Если имеется несколько самых длинных общих подстрок одной длины,
      * вернуть ту из них, которая встречается раньше в строке first.
      */
-    static public String longestCommonSubstring(String firs, String second) {
-        throw new NotImplementedError();
-    }
+    static public String longestCommonSubstring(String first, String second) { //в исх коде опечатка: написано "firs"
+        if (first == null || second == null || first.length() == 0 || second.length() == 0) return "";
+        if (first.equals(second)) return first;
+
+        int index = 0;
+        int max = 0;
+        String sub = "";
+        for (int i = 0; i < first.length() - 1; i++) {
+            int next = i + 1;
+            while (second.contains(first.substring(i, next))) {
+                if (next < second.length() - 1 && next < first.length() - 1) { next++; } else break;
+            }
+            String curSub = first.substring(i, next - 1);
+            if (curSub.length() > max) {
+                max = curSub.length();
+                sub = first.substring(i, next - 1);
+            }
+        }
+        return sub;
+    } //трудоёмкость, ресурскоёмкость: O(n*n)
 
     /**
      * Число простых чисел в интервале

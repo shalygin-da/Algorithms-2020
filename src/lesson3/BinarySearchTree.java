@@ -101,8 +101,36 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
      */
     @Override
     public boolean remove(Object o) {
-        // TODO
-        throw new NotImplementedError();
+        if (!contains(o)) return false;
+        Node<T> node = new Node<>((T) o);
+        root = removeNode(root, node); //removeNode defined later
+        size--;
+        return true;
+    } // трудоемкость O(n) [n - высота дерева] , ресурсоемкость O(1)
+
+    private Node<T> removeNode (Node<T> root, Node<T> node) {
+        if (root == null) return null;
+        if (node.value.compareTo(root.value) > 0) root.right = removeNode(root.right, node);
+        else if (node.value.compareTo(root.value) < 0) root.left = removeNode(root.left, node);
+        else {
+            if (root.left != null && root.right != null) {
+                Node<T> min = new Node<>(min(root.right).value); //min defined later
+                min.left = root.left;
+                min.right = root.right;
+                root = min;
+                root.right = removeNode(root.right, root);
+            } else {
+                if (root.left != null)
+                    root = root.left;
+                else root = root.right;
+            }
+        }
+        return root;
+    }
+
+    private Node<T> min(Node<T> root) {
+        if (root.left == null) return root;
+        else return  min(root.left);
     }
 
     @Nullable
@@ -119,9 +147,19 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
 
     public class BinarySearchTreeIterator implements Iterator<T> {
 
+        private Node<T> current = null;
+        private Node<T> previous = null;
+        private Stack<Node<T>> parents = new Stack<>();
+
         private BinarySearchTreeIterator() {
-            // Добавьте сюда инициализацию, если она необходима.
-        }
+                if (root == null) return;
+                current = root;
+                parents.push(null);
+                while (current.left != null) {
+                    parents.push(current);
+                    current = current.left;
+                }
+            }
 
         /**
          * Проверка наличия следующего элемента
@@ -134,10 +172,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          * Средняя
          */
         @Override
-        public boolean hasNext() {
-            // TODO
-            throw new NotImplementedError();
-        }
+        public boolean hasNext() { return current != null; } // O(1), O(1)
 
         /**
          * Получение следующего элемента
@@ -154,8 +189,31 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public T next() {
-            // TODO
-            throw new NotImplementedError();
+            previous = current;
+            current = findNext(current);
+            return previous.value;
+        } //O(n), O(1) [n - высота дерева]
+
+        private Node<T> findNext(Node<T> node) {
+            if (node.right != null) {
+                parents.push(node);
+                return minWithParents(node.right); //minWithParents defined later
+            }
+            Node<T> parent = parents.pop();
+            while (parent != null && node == parent.right) {
+                node = parent;
+                parent = parents.pop();
+            }
+            return parent;
+        }
+
+        private Node<T> minWithParents(Node<T> node) {
+            if (node == null) throw new NoSuchElementException();
+            while (node.left != null) {
+                parents.push(node);
+                node = node.left;
+            }
+            return node;
         }
 
         /**
@@ -172,8 +230,28 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public void remove() {
-            // TODO
-            throw new NotImplementedError();
+            BinarySearchTree.this.remove(previous.value);
+            while (!parents.isEmpty()) {
+                parents.pop();
+            }
+            parents.push(null);
+            if (current == null) return;
+            current = findWithParents(root, current.value); //findWithParents defined later
+        } // O(n), O(1)
+
+        private Node<T> findWithParents(Node<T> root, T value) {
+            int comp = value.compareTo(root.value);
+            if (comp == 0) return root;
+            else if (comp < 0) {
+                parents.push(root);
+                if (root.left == null) return root;
+                else return findWithParents(root.left, value);
+            }
+            else {
+                parents.push(root);
+                if (root.right == null) return root;
+                else return findWithParents(root.right, value);
+            }
         }
     }
 

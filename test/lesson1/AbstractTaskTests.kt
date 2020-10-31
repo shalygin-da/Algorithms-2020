@@ -51,10 +51,10 @@ abstract class AbstractTaskTests : AbstractFileTests() {
                 "temp.txt",
                 """
                     10:10:10 AM
-                    10:12:13 PM
-                    10:12:13 PM
-                    10:12:13 PM
                     11:00:56 AM
+                    10:12:13 PM
+                    10:12:13 PM
+                    10:12:13 PM
                 """.trimIndent()
             )
         } finally {

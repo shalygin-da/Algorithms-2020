@@ -195,6 +195,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         } //O(n), O(1) [n - высота дерева]
 
         private Node<T> findNext(Node<T> node) {
+            if (!hasNext()) throw new IllegalStateException();
             if (node.right != null) {
                 parents.push(node);
                 return minWithParents(node.right); //minWithParents defined later
@@ -230,7 +231,9 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public void remove() {
+            if (previous == null) throw new IllegalStateException();
             BinarySearchTree.this.remove(previous.value);
+            previous = null;
             while (!parents.isEmpty()) {
                 parents.pop();
             }
